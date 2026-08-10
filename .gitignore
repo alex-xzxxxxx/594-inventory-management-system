@@ -1,0 +1,17 @@
+# Angular
+inventory-system-ui/node_modules/
+inventory-system-ui/dist/
+inventory-system-ui/.angular/
+
+# Java
+inventory-system-backend/target/
+*.class
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
