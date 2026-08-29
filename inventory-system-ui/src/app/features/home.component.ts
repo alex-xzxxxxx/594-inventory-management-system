@@ -1,8 +1,11 @@
 import { Component, inject } from "@angular/core";
+import { CommonModule, CurrencyPipe } from "@angular/common";
 import { RouterLink } from "@angular/router";
 import { ApiService } from "../core/services/api";
 import {
+  InventoryAuditEntry,
   InventoryItem,
+  InventorySummary,
   Product,
   PurchaseOrder,
   Supplier,
@@ -10,26 +13,26 @@ import {
 @Component({
   selector: "app-home",
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   template: ` <section class="page">
     <div class="page-title">
       <div>
         <h1>Inventory Operations</h1>
-        <p>Version 1 core workflow.</p>
+        <p>Version 2 monitoring, alerts, and audit trail.</p>
       </div>
     </div>
     <div class="cards">
       <div class="stat">
-        <span>Products</span><b>{{ products.length }}</b>
+        <span>Products</span><b>{{ summary.totalProducts || products.length }}</b>
       </div>
       <div class="stat">
-        <span>Suppliers</span><b>{{ suppliers.length }}</b>
+        <span>Suppliers</span><b>{{ summary.totalSuppliers || suppliers.length }}</b>
       </div>
       <div class="stat">
-        <span>Inventory Items</span><b>{{ inventory.length }}</b>
+        <span>Total Units</span><b>{{ summary.totalUnits || getTotalUnits() }}</b>
       </div>
       <div class="stat">
-        <span>Purchase Orders</span><b>{{ orders.length }}</b>
+        <span>Low Stock</span><b>{{ summary.lowStockCount || alerts.length }}</b>
       </div>
     </div>
     <div class="card">
@@ -41,19 +44,37 @@ import {
       </div>
     </div>
     <div class="grid">
-      <a class="card link-card" routerLink="/products"
-        ><h3>Manage Products</h3>
-        <p>Create and maintain product records.</p></a
-      ><a class="card link-card" routerLink="/suppliers"
-        ><h3>Manage Suppliers</h3>
-        <p>Maintain supplier contacts.</p></a
-      ><a class="card link-card" routerLink="/inventory"
-        ><h3>Manage Inventory</h3>
-        <p>Perform stock-in and stock-out.</p></a
-      ><a class="card link-card" routerLink="/purchase-orders"
-        ><h3>Purchase Orders</h3>
-        <p>Create and receive incoming stock.</p></a
-      >
+      <div class="card">
+        <h3>Inventory snapshot</h3>
+        <p><strong>{{ summary.inventoryValue || 0 | currency }}</strong> inventory value</p>
+        <p>{{ summary.totalInventoryItems || inventory.length }} tracked items</p>
+        <p>{{ summary.purchaseOrderCount || orders.length }} purchase orders</p>
+      </div>
+      <div class="card">
+        <h3>Low-stock alerts</h3>
+        <ul class="alert-list">
+          <li *ngFor="let item of alerts">
+            Product {{ item.productId }}: {{ item.quantity }} units (reorder at {{ item.reorderLevel }})
+          </li>
+          <li *ngIf="!alerts.length">No items currently below reorder threshold.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Recent audit trail</h3>
+        <ul class="alert-list">
+          <li *ngFor="let entry of auditTrail.slice(0, 5)">{{ entry.action }} — {{ entry.message }}</li>
+          <li *ngIf="!auditTrail.length">No audit entries recorded yet.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Quick actions</h3>
+        <div class="workflow compact">
+          <a routerLink="/products">Products</a>
+          <a routerLink="/suppliers">Suppliers</a>
+          <a routerLink="/inventory">Inventory</a>
+          <a routerLink="/purchase-orders">Orders</a>
+        </div>
+      </div>
     </div>
   </section>`,
 })
@@ -63,10 +84,27 @@ export class HomeComponent {
   suppliers: Supplier[] = [];
   inventory: InventoryItem[] = [];
   orders: PurchaseOrder[] = [];
+  alerts: InventoryItem[] = [];
+  auditTrail: InventoryAuditEntry[] = [];
+  summary: InventorySummary = {
+    totalProducts: 0,
+    totalSuppliers: 0,
+    totalInventoryItems: 0,
+    totalUnits: 0,
+    lowStockCount: 0,
+    inventoryValue: 0,
+    purchaseOrderCount: 0,
+  };
   constructor() {
     this.api.products().subscribe((x) => (this.products = x));
     this.api.suppliers().subscribe((x) => (this.suppliers = x));
     this.api.inventory().subscribe((x) => (this.inventory = x));
     this.api.purchaseOrders().subscribe((x) => (this.orders = x));
+    this.api.lowStockAlerts().subscribe((x) => (this.alerts = x));
+    this.api.auditTrail().subscribe((x) => (this.auditTrail = x));
+    this.api.inventorySummary().subscribe((x) => (this.summary = x));
+  }
+  getTotalUnits() {
+    return this.inventory.reduce((sum, item) => sum + item.quantity, 0);
   }
 }

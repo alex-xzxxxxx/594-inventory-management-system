@@ -11,10 +11,7 @@
     <groupId>com.iwms</groupId>
     <artifactId>inventory-system-backend</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging>
-    <modules>
-        <module>system-demo</module>
-    </modules>
+    <packaging>jar</packaging>
     <name>inventory-system-backend</name>
     <description>IWMS Spring Boot backend with in-memory mock data</description>
     <properties>

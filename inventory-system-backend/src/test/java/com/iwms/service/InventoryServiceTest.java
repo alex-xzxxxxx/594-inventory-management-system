@@ -19,4 +19,15 @@ class InventoryServiceTest {
         InventoryService service = new InventoryService(store);
         assertThrows(IllegalArgumentException.class, () -> service.stockOut(1L, 100));
     }
+
+    @Test
+    void lowStockAlertsIncludesItemsAtOrBelowReorderLevel() {
+        InMemoryStore store = new InMemoryStore();
+        InventoryService service = new InventoryService(store);
+
+        var alerts = service.lowStockAlerts();
+
+        assertFalse(alerts.isEmpty());
+        assertTrue(alerts.stream().anyMatch(item -> item.getProductId().equals(3L)));
+    }
 }

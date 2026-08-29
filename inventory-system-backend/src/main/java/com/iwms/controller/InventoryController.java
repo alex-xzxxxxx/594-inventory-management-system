@@ -1,10 +1,22 @@
 package com.iwms.controller;
 
-import com.iwms.model.InventoryItem; import com.iwms.service.InventoryService; import jakarta.validation.constraints.Positive; import org.springframework.http.ResponseEntity; import org.springframework.web.bind.annotation.*; import java.util.*;
+import com.iwms.model.InventoryItem;
+import com.iwms.repository.InMemoryStore;
+import com.iwms.service.InventoryService;
+import jakarta.validation.constraints.Positive;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
 @RestController @RequestMapping("/api/inventory") @CrossOrigin(origins="http://localhost:4200")
 public class InventoryController {
  private final InventoryService service; public InventoryController(InventoryService service){this.service=service;}
  @GetMapping public Object all(){return service.findAll();}
+ @GetMapping("/summary") public Map<String,Object> summary(){return service.inventorySummary();}
+ @GetMapping("/alerts") public List<InventoryItem> alerts(){return service.lowStockAlerts();}
+ @GetMapping("/audit") public List<InMemoryStore.AuditEntry> audit(){return service.auditTrail();}
  @GetMapping("/{productId}") public ResponseEntity<InventoryItem> one(@PathVariable Long productId){return service.findByProductId(productId).map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());}
  public record QuantityRequest(Long productId,@Positive int quantity){}
  @PostMapping("/stock-in") public InventoryItem stockIn(@RequestBody QuantityRequest r){return service.stockIn(r.productId(),r.quantity());}

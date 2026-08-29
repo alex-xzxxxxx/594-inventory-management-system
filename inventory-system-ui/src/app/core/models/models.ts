@@ -35,3 +35,17 @@ export interface LoginResponse {
   username: string | null;
   message: string;
 }
+export interface InventorySummary {
+  totalProducts: number;
+  totalSuppliers: number;
+  totalInventoryItems: number;
+  totalUnits: number;
+  lowStockCount: number;
+  inventoryValue: number;
+  purchaseOrderCount: number;
+}
+export interface InventoryAuditEntry {
+  action: string;
+  message: string;
+  timestamp: string;
+}
