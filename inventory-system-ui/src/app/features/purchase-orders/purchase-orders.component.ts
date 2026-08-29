@@ -16,6 +16,12 @@ import { Product, PurchaseOrder, Supplier } from "../../core/models/models";
     </div>
     <div class="card form-card">
       <h2>Create Purchase Order</h2>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+      @if (success) {
+        <p class="success">{{ success }}</p>
+      }
       <div class="form-grid">
         <select [(ngModel)]="supplierId">
           <option [ngValue]="null">Select supplier</option>
@@ -79,6 +85,7 @@ export class PurchaseOrdersComponent {
   productId: number | null = null;
   quantity = 1;
   error = "";
+  success = "";
   constructor() {
     this.load();
     this.api.suppliers().subscribe((x) => (this.suppliers = x));
@@ -90,6 +97,7 @@ export class PurchaseOrdersComponent {
   create() {
     if (!this.supplierId || !this.productId || this.quantity <= 0) {
       this.error = "Select a supplier, product, and positive quantity.";
+      this.success = "";
       return;
     }
     this.api
@@ -99,19 +107,28 @@ export class PurchaseOrdersComponent {
       .subscribe({
         next: () => {
           this.error = "";
+          this.success = "Purchase order created successfully.";
           this.load();
         },
-        error: (e) =>
-          (this.error = e.error?.error ?? "Unable to create order."),
+        error: (e) => {
+          this.success = "";
+          this.error = e.error?.error ?? "Unable to create order.";
+        },
       });
   }
   receive(id: number) {
     this.api
       .receivePurchaseOrder(id)
       .subscribe({
-        next: () => this.load(),
-        error: (e) =>
-          (this.error = e.error?.error ?? "Unable to receive order."),
+        next: () => {
+          this.success = "Purchase order received and inventory updated.";
+          this.error = "";
+          this.load();
+        },
+        error: (e) => {
+          this.success = "";
+          this.error = e.error?.error ?? "Unable to receive order.";
+        },
       });
   }
   supplierName(id: number) {

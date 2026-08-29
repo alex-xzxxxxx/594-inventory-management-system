@@ -16,6 +16,12 @@ import { Product, Supplier } from "../../core/models/models";
     </div>
     <div class="card form-card">
       <h2>Add Product</h2>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+      @if (success) {
+        <p class="success">{{ success }}</p>
+      }
       <div class="form-grid">
         <input placeholder="SKU" [(ngModel)]="form.sku" /><input
           placeholder="Product name"
@@ -71,6 +77,8 @@ export class ProductsComponent {
   products: Product[] = [];
   suppliers: Supplier[] = [];
   query = "";
+  error = "";
+  success = "";
   form: any = {
     sku: "",
     name: "",
@@ -86,20 +94,42 @@ export class ProductsComponent {
     this.api.products(this.query).subscribe((x) => (this.products = x));
   }
   add() {
-    if (!this.form.sku || !this.form.name || !this.form.category) return;
-    this.api.createProduct(this.form).subscribe(() => {
-      this.form = {
-        sku: "",
-        name: "",
-        category: "",
-        unitPrice: 0,
-        supplierId: null,
-      };
-      this.load();
+    if (!this.form.sku || !this.form.name || !this.form.category) {
+      this.error = "Please complete the SKU, name, and category before saving.";
+      this.success = "";
+      return;
+    }
+    this.api.createProduct(this.form).subscribe({
+      next: () => {
+        this.success = "Product added successfully.";
+        this.error = "";
+        this.form = {
+          sku: "",
+          name: "",
+          category: "",
+          unitPrice: 0,
+          supplierId: null,
+        };
+        this.load();
+      },
+      error: () => {
+        this.error = "Unable to add product. Please try again.";
+        this.success = "";
+      },
     });
   }
   remove(id: number) {
-    this.api.deleteProduct(id).subscribe(() => this.load());
+    this.api.deleteProduct(id).subscribe({
+      next: () => {
+        this.success = "Product deleted.";
+        this.error = "";
+        this.load();
+      },
+      error: () => {
+        this.error = "Unable to delete product.";
+        this.success = "";
+      },
+    });
   }
   supplierName(id: number | null) {
     return this.suppliers.find((s) => s.id === id)?.name ?? "—";
