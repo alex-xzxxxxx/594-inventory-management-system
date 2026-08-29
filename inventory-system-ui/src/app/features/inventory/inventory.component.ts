@@ -16,6 +16,12 @@ import { InventoryItem, Product } from "../../core/models/models";
     </div>
     <div class="card form-card">
       <h2>Stock Movement</h2>
+      @if (error) {
+        <p class="error">{{ error }}</p>
+      }
+      @if (success) {
+        <p class="success">{{ success }}</p>
+      }
       <div class="form-grid">
         <select [(ngModel)]="productId">
           <option [ngValue]="null">Select product</option>
@@ -67,6 +73,7 @@ export class InventoryComponent {
   productId: number | null = null;
   quantity = 1;
   error = "";
+  success = "";
   constructor() {
     this.load();
     this.api.products().subscribe((x) => (this.products = x));
@@ -83,6 +90,7 @@ export class InventoryComponent {
   move(inbound: boolean) {
     if (!this.productId || this.quantity <= 0) {
       this.error = "Select a product and enter a positive quantity.";
+      this.success = "";
       return;
     }
     const req = inbound
@@ -91,10 +99,13 @@ export class InventoryComponent {
     req.subscribe({
       next: () => {
         this.error = "";
+        this.success = `Inventory ${inbound ? "updated" : "adjusted"} successfully.`;
         this.load();
       },
-      error: (e) =>
-        (this.error = e.error?.error ?? "Unable to update inventory."),
+      error: (e) => {
+        this.success = "";
+        this.error = e.error?.error ?? "Unable to update inventory.";
+      },
     });
   }
   productName(id: number) {
