@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test"
+    "test": "ng test --watch=false --browsers=ChromeHeadless --code-coverage"
   },
   "private": true,
   "dependencies": {
@@ -25,6 +25,14 @@
     "@angular-devkit/build-angular": "^19.2.0",
     "@angular/cli": "^19.2.0",
     "@angular/compiler-cli": "^19.2.0",
+    "@types/jasmine": "~5.1.0",
+    "jasmine-core": "^4.6.1",
+    "karma": "~6.4.0",
+    "karma-chrome-launcher": "~3.2.0",
+    "karma-coverage": "~2.2.1",
+    "karma-jasmine": "~5.0.0",
+    "karma-jasmine-html-reporter": "~2.0.0",
+    "puppeteer": "^24.1.0",
     "typescript": "~5.7.2"
   }
 }

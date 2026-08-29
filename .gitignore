@@ -2,6 +2,8 @@
 inventory-system-ui/node_modules/
 inventory-system-ui/dist/
 inventory-system-ui/.angular/
+inventory-system-ui/coverage/
+
 
 # Java
 inventory-system-backend/target/
