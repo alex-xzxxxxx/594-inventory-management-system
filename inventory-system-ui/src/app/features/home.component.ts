@@ -69,6 +69,8 @@ import {
       <div class="card">
         <h3>Quick actions</h3>
         <div class="workflow compact">
+          <a routerLink="/analytics">Analytics</a>
+          <a routerLink="/audit">Audit Log</a>
           <a routerLink="/products">Products</a>
           <a routerLink="/suppliers">Suppliers</a>
           <a routerLink="/inventory">Inventory</a>
