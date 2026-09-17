@@ -6,6 +6,8 @@ import {
   InventoryItem,
   PurchaseOrder,
   LoginResponse,
+  InventorySummary,
+  InventoryAuditEntry,
 } from "../models/models";
 import { Observable } from "rxjs";
 
@@ -35,6 +37,15 @@ export class ApiService {
   }
   inventory() {
     return this.http.get<InventoryItem[]>(`${this.base}/inventory`);
+  }
+  inventorySummary() {
+    return this.http.get<InventorySummary>(`${this.base}/inventory/summary`);
+  }
+  lowStockAlerts() {
+    return this.http.get<InventoryItem[]>(`${this.base}/inventory/alerts`);
+  }
+  auditTrail() {
+    return this.http.get<InventoryAuditEntry[]>(`${this.base}/inventory/audit`);
   }
   stockIn(productId: number, quantity: number) {
     return this.http.post<InventoryItem>(`${this.base}/inventory/stock-in`, {

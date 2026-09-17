@@ -20,12 +20,12 @@ public class PurchaseOrderService {
             if(!store.products.containsKey(item.getProductId())) throw new NoSuchElementException("Product not found: "+item.getProductId());
             if(item.getQuantity()<=0) throw new IllegalArgumentException("Quantity must be greater than zero");
         }
-        po.setId(store.nextPurchaseOrderId()); po.setOrderDate(LocalDate.now()); po.setStatus(PurchaseOrder.Status.CREATED); store.purchaseOrders.put(po.getId(),po); return po;
+        po.setId(store.nextPurchaseOrderId()); po.setOrderDate(LocalDate.now()); po.setStatus(PurchaseOrder.Status.CREATED); store.purchaseOrders.put(po.getId(),po); store.recordAudit("purchase-order-created", "Created purchase order PO-" + po.getId() + "."); return po;
     }
     public PurchaseOrder receive(Long id){
         PurchaseOrder po=store.purchaseOrders.get(id); if(po==null)throw new NoSuchElementException("Purchase order not found");
         if(po.getStatus()==PurchaseOrder.Status.RECEIVED) throw new IllegalStateException("Purchase order has already been received");
         for(PurchaseOrderItem item:po.getItems()) inventoryService.stockIn(item.getProductId(),item.getQuantity());
-        po.setStatus(PurchaseOrder.Status.RECEIVED); return po;
+        po.setStatus(PurchaseOrder.Status.RECEIVED); store.recordAudit("purchase-order-received", "Received purchase order PO-" + id + "."); return po;
     }
 }

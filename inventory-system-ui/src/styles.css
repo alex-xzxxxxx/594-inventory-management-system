@@ -122,9 +122,24 @@ p {
   background: #eff6ff;
   color: #1d4ed8;
 }
+.workflow a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+}
 .workflow i {
   font-style: normal;
   color: #94a3b8;
+}
+.alert-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+}
+.alert-list li {
+  margin-bottom: 8px;
 }
 .grid {
   display: grid;

@@ -13,7 +13,9 @@ import { AuthService } from "../../core/services/auth.service";
       <button class="secondary" (click)="auth.logout()">Logout</button>
     </header>
     <nav>
-      <a routerLink="/">Home</a><a routerLink="/products">Products</a
+      <a routerLink="/">Home</a><a routerLink="/analytics">Analytics</a
+      ><a routerLink="/audit">Audit Log</a
+      ><a routerLink="/products">Products</a
       ><a routerLink="/suppliers">Suppliers</a
       ><a routerLink="/inventory">Inventory</a
       ><a routerLink="/purchase-orders">Purchase Orders</a>

@@ -7,7 +7,7 @@ export class AuthService {
   private api = inject(ApiService);
   private router = inject(Router);
   private key = "iwms-auth";
-  private readonly inactivityTimeoutMs = 15 * 60 * 1000;
+  private readonly inactivityTimeoutMs = 10 * 60 * 1000;
   private inactivityTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
