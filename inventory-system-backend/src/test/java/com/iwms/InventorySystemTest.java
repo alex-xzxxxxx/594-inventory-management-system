@@ -45,6 +45,36 @@ class InventorySystemTest {
     }
 
     @Test
+    void stockOutFlowDecreasesInventoryAndCreatesAuditEntry() throws Exception {
+        mockMvc.perform(post("/api/inventory/stock-out")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"productId\":1,\"quantity\":5}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.productId").value(1))
+                .andExpect(jsonPath("$.quantity").value(20));
+
+        mockMvc.perform(get("/api/inventory/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(20));
+
+        mockMvc.perform(get("/api/inventory/audit"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.action == 'stock-out')]").exists());
+    }
+
+    @Test
+    void stockOutRejectsQuantityGreaterThanAvailableInventory() throws Exception {
+        mockMvc.perform(post("/api/inventory/stock-out")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"productId\":1,\"quantity\":26}"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/inventory/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(25));
+    }
+
+    @Test
     void authenticationEndpointsAcceptValidCredentialsAndRejectInvalidCredentials() throws Exception {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,5 +160,25 @@ class InventorySystemTest {
         mockMvc.perform(get("/api/inventory/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.quantity").value(60));
+    }
+
+    @Test
+    void purchaseOrderCannotBeReceivedTwiceThroughApi() throws Exception {
+        mockMvc.perform(post("/api/purchase-orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"supplierId\":1,\"items\":[{\"productId\":1,\"quantity\":5}]}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(5));
+
+        mockMvc.perform(post("/api/purchase-orders/5/receive"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("RECEIVED"));
+
+        mockMvc.perform(post("/api/purchase-orders/5/receive"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/inventory/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(30));
     }
 }
