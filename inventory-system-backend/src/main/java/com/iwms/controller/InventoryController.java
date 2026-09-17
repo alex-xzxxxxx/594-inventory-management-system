@@ -6,6 +6,7 @@ import com.iwms.service.InventoryService;
 import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,6 @@ public class InventoryController {
  @GetMapping("/audit") public List<InMemoryStore.AuditEntry> audit(){return service.auditTrail();}
  @GetMapping("/{productId}") public ResponseEntity<InventoryItem> one(@PathVariable Long productId){return service.findByProductId(productId).map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());}
  public record QuantityRequest(Long productId,@Positive int quantity){}
- @PostMapping("/stock-in") public InventoryItem stockIn(@RequestBody QuantityRequest r){return service.stockIn(r.productId(),r.quantity());}
- @PostMapping("/stock-out") public InventoryItem stockOut(@RequestBody QuantityRequest r){return service.stockOut(r.productId(),r.quantity());}
+ @PostMapping("/stock-in") public InventoryItem stockIn(@Valid @RequestBody QuantityRequest r){return service.stockIn(r.productId(),r.quantity());}
+ @PostMapping("/stock-out") public InventoryItem stockOut(@Valid @RequestBody QuantityRequest r){return service.stockOut(r.productId(),r.quantity());}
 }
