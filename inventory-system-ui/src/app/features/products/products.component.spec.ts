@@ -9,7 +9,7 @@ describe('ProductsComponent', () => {
   beforeEach(async () => {
     apiSpy = jasmine.createSpyObj('ApiService', ['suppliers', 'products', 'createProduct', 'deleteProduct']);
     apiSpy.suppliers.and.returnValue(of([{ id: 1, name: 'Acme', contactName: 'Alice', email: 'alice@acme.com', phone: '123' }]));
-    apiSpy.products.and.returnValue(of([{ id: 7, sku: 'SKU-7', name: 'Latch', category: 'Hardware', unitPrice: 12, supplierId: 1 }]));
+    apiSpy.products.and.callFake((query = '') => of(query ? [] : [{ id: 7, sku: 'SKU-7', name: 'Latch', category: 'Hardware', unitPrice: 12, supplierId: 1 }]));
     apiSpy.createProduct.and.returnValue(of({ id: 8, sku: 'SKU-8', name: 'Bolt', category: 'Hardware', unitPrice: 20, supplierId: 1 }));
     apiSpy.deleteProduct.and.returnValue(of(undefined));
 
@@ -59,5 +59,17 @@ describe('ProductsComponent', () => {
     component.remove(7);
 
     expect(apiSpy.deleteProduct).toHaveBeenCalledWith(7);
+  });
+
+  it('should show no products when a search has no matches', () => {
+    const fixture = TestBed.createComponent(ProductsComponent);
+    const component = fixture.componentInstance;
+
+    component.query = 'does-not-exist';
+    component.load();
+    fixture.detectChanges();
+
+    expect(component.products).toEqual([]);
+    expect(fixture.nativeElement.querySelectorAll('tbody tr').length).toBe(0);
   });
 });

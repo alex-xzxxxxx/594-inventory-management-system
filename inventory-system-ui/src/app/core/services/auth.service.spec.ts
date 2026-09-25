@@ -10,6 +10,7 @@ describe('AuthService', () => {
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
+    jasmine.clock().install();
     sessionStorage.clear();
     apiSpy = jasmine.createSpyObj('ApiService', ['login']);
     routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
@@ -23,6 +24,10 @@ describe('AuthService', () => {
     });
 
     service = TestBed.inject(AuthService);
+  });
+
+  afterEach(() => {
+    jasmine.clock().uninstall();
   });
 
   it('should report logged in state based on session storage', () => {
@@ -59,6 +64,18 @@ describe('AuthService', () => {
     sessionStorage.setItem('iwms-auth', 'admin');
 
     service.logout();
+
+    expect(sessionStorage.getItem('iwms-auth')).toBeNull();
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('should log out after ten minutes of inactivity', () => {
+    apiSpy.login.and.returnValue(
+      of({ authenticated: true, username: 'admin', message: 'Login successful.' }),
+    );
+
+    service.login('admin', 'admin123').subscribe();
+    jasmine.clock().tick(10 * 60 * 1000);
 
     expect(sessionStorage.getItem('iwms-auth')).toBeNull();
     expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
