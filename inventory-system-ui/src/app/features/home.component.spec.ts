@@ -23,14 +23,17 @@ describe('HomeComponent', () => {
     }).compileComponents();
   });
 
-  it('should create and load summary data', () => {
+  it('should create and render the dashboard summary data', () => {
     const fixture = TestBed.createComponent(HomeComponent);
     const component = fixture.componentInstance;
+    fixture.detectChanges();
 
     expect(component).toBeTruthy();
     expect(component.products.length).toBe(1);
     expect(component.suppliers.length).toBe(1);
     expect(component.inventory.length).toBe(1);
     expect(component.orders.length).toBe(1);
+    expect(fixture.nativeElement.textContent).toContain('Inventory Operations');
+    expect(fixture.nativeElement.textContent).toContain('Product 1: 4 units (reorder at 5)');
   });
 });

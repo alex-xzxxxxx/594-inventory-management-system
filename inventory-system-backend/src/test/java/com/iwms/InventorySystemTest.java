@@ -97,6 +97,10 @@ class InventorySystemTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].sku").value("P-1001"));
 
+        mockMvc.perform(get("/api/products").param("q", "does-not-exist"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+
         mockMvc.perform(post("/api/products")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"sku\":\"P-TEST\",\"name\":\"Test Product\",\"category\":\"Testing\",\"unitPrice\":12.5,\"supplierId\":1}"))
@@ -113,6 +117,10 @@ class InventorySystemTest {
         mockMvc.perform(delete("/api/products/9"))
                 .andExpect(status().isNoContent());
         mockMvc.perform(get("/api/products/9"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(put("/api/products/9")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"sku\":\"P-TEST\",\"name\":\"Missing Product\",\"category\":\"Testing\",\"unitPrice\":15.0,\"supplierId\":1}"))
                 .andExpect(status().isNotFound());
     }
 
@@ -137,6 +145,10 @@ class InventorySystemTest {
         mockMvc.perform(delete("/api/suppliers/6"))
                 .andExpect(status().isNoContent());
         mockMvc.perform(get("/api/suppliers/6"))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(put("/api/suppliers/6")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Missing Supplier\",\"contactName\":\"Contact\",\"email\":\"missing@example.com\",\"phone\":\"555-0000\"}"))
                 .andExpect(status().isNotFound());
     }
 

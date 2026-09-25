@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 public class InMemoryStore {
-    private static final boolean PERSISTENCE_ENABLED = Boolean.parseBoolean(System.getProperty("iwms.persistence", "false"));
     private static final Path DATA_FILE = Path.of(System.getProperty("user.dir"), "data", "iwms-data.json");
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -73,12 +72,12 @@ public class InMemoryStore {
         purchaseOrders.put(4L,new PurchaseOrder(4L,5L, LocalDate.now().minusDays(65),PurchaseOrder.Status.RECEIVED,
                 List.of(new PurchaseOrderItem(5L,25), new PurchaseOrderItem(3L,10))));
 
-        if (PERSISTENCE_ENABLED && Files.exists(DATA_FILE)) {
+        if (persistenceEnabled() && Files.exists(DATA_FILE)) {
             loadFromDisk();
             return;
         }
         recordAudit("bootstrap", "Seed data initialized for IWMS demo with expanded analytics data.");
-        if (PERSISTENCE_ENABLED) persist();
+        if (persistenceEnabled()) persist();
     }
 
     public long nextProductId(){return productIds.incrementAndGet();}
@@ -87,7 +86,7 @@ public class InMemoryStore {
 
     public void recordAudit(String action, String message){
         auditTrail.add(new AuditEntry(action, message, LocalDateTime.now()));
-        if (PERSISTENCE_ENABLED) persist();
+        if (persistenceEnabled()) persist();
     }
 
     public List<AuditEntry> getAuditTrail(){
@@ -95,13 +94,17 @@ public class InMemoryStore {
     }
 
     public void persist(){
-        if (!PERSISTENCE_ENABLED) return;
+        if (!persistenceEnabled()) return;
         try {
             Files.createDirectories(DATA_FILE.getParent());
             MAPPER.writeValue(DATA_FILE.toFile(), new Snapshot(products, suppliers, inventory, purchaseOrders, auditTrail));
         } catch (IOException e) {
             throw new IllegalStateException("Unable to persist IWMS data.", e);
         }
+    }
+
+    private boolean persistenceEnabled() {
+        return Boolean.parseBoolean(System.getProperty("iwms.persistence", "false"));
     }
 
     private void loadFromDisk(){
