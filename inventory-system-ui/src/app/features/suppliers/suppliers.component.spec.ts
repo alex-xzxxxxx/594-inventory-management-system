@@ -52,7 +52,10 @@ describe('SuppliersComponent', () => {
     const component = fixture.componentInstance;
 
     component.remove(1);
+    fixture.detectChanges();
 
     expect(apiSpy.deleteSupplier).toHaveBeenCalledWith(1);
+    expect(component.suppliers).toEqual([]);
+    expect(fixture.nativeElement.textContent).toContain('Supplier deleted.');
   });
 });

@@ -14,14 +14,14 @@ import { Supplier } from "../../core/models/models";
         <p>Maintain supplier information used by purchase orders.</p>
       </div>
     </div>
+    @if (error) {
+      <p class="error" role="alert">{{ error }}</p>
+    }
+    @if (success) {
+      <p class="success" role="status">{{ success }}</p>
+    }
     <div class="card form-card">
       <h2>Add Supplier</h2>
-      @if (error) {
-        <p class="error">{{ error }}</p>
-      }
-      @if (success) {
-        <p class="success">{{ success }}</p>
-      }
       <div class="form-grid">
         <input placeholder="Company name" [(ngModel)]="form.name" /><input
           placeholder="Contact name"
@@ -94,7 +94,7 @@ export class SuppliersComponent {
       next: () => {
         this.success = "Supplier deleted.";
         this.error = "";
-        this.load();
+        this.suppliers = this.suppliers.filter((supplier) => supplier.id !== id);
       },
       error: () => {
         this.error = "Unable to delete supplier.";

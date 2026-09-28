@@ -36,8 +36,10 @@ describe('InventoryComponent', () => {
     component.productId = null;
     component.quantity = 0;
     component.stockIn();
+    fixture.detectChanges();
 
     expect(component.error).toBe('Select a product and enter a positive quantity.');
+    expect(fixture.nativeElement.querySelectorAll('.error').length).toBe(1);
   });
 
   it('should stock in inventory', () => {

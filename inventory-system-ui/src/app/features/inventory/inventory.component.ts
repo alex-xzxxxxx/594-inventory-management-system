@@ -36,7 +36,6 @@ import { InventoryItem, Product } from "../../core/models/models";
         /><button (click)="stockIn()">Stock In</button
         ><button class="secondary" (click)="stockOut()">Stock Out</button>
       </div>
-      <p class="error" *ngIf="error">{{ error }}</p>
     </div>
     <div class="card">
       <table>

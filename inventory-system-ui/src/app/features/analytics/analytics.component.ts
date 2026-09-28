@@ -229,7 +229,10 @@ export class AnalyticsComponent {
   }
 
   getOrderVolume(): number {
-    return this.monthOrderTotals.reduce((sum, point) => sum + point.value, 0);
+    return this.orders.reduce(
+      (total, order) => total + order.items.reduce((orderTotal, item) => orderTotal + item.quantity, 0),
+      0,
+    );
   }
 
   private buildValueChart(totalValue: number): ChartPoint[] {
@@ -257,16 +260,21 @@ export class AnalyticsComponent {
   }
 
   private buildOrderVolumeChart(purchaseOrders: PurchaseOrder[]): ChartPoint[] {
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const counts = monthNames.map((label) => ({ label, value: 0 }));
+    const monthlyTotals = new Map<string, ChartPoint>();
 
     for (const order of purchaseOrders) {
-      const monthIndex = new Date(order.orderDate).getMonth();
-      if (monthIndex >= 0 && monthIndex < counts.length) {
-        counts[monthIndex].value += order.items.reduce((sum, item) => sum + item.quantity, 0);
-      }
+      const date = new Date(`${order.orderDate}T00:00:00`);
+      if (Number.isNaN(date.getTime())) continue;
+
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const label = date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      const month = monthlyTotals.get(key) ?? { label, value: 0 };
+      month.value += order.items.reduce((sum, item) => sum + item.quantity, 0);
+      monthlyTotals.set(key, month);
     }
 
-    return counts;
+    return [...monthlyTotals.entries()]
+      .sort(([first], [second]) => first.localeCompare(second))
+      .map(([, month]) => month);
   }
 }
