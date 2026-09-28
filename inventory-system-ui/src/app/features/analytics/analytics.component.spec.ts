@@ -28,8 +28,46 @@ describe('AnalyticsComponent', () => {
     );
     apiSpy.purchaseOrders.and.returnValue(
       of([
-        { id: 1, supplierId: 1, orderDate: '2026-08-01', status: 'CREATED', items: [{ productId: 1, quantity: 8 }] },
-        { id: 2, supplierId: 2, orderDate: '2026-08-02', status: 'RECEIVED', items: [{ productId: 2, quantity: 5 }] },
+        {
+          id: 1,
+          supplierId: 1,
+          orderDate: '2026-07-15',
+          status: 'RECEIVED',
+          items: [
+            { productId: 1, quantity: 20 },
+            { productId: 2, quantity: 30 },
+          ],
+        },
+        {
+          id: 2,
+          supplierId: 2,
+          orderDate: '2026-08-01',
+          status: 'RECEIVED',
+          items: [
+            { productId: 3, quantity: 50 },
+            { productId: 4, quantity: 60 },
+          ],
+        },
+        {
+          id: 3,
+          supplierId: 3,
+          orderDate: '2026-08-15',
+          status: 'CREATED',
+          items: [
+            { productId: 5, quantity: 12 },
+            { productId: 6, quantity: 18 },
+          ],
+        },
+        {
+          id: 4,
+          supplierId: 4,
+          orderDate: '2026-09-01',
+          status: 'RECEIVED',
+          items: [
+            { productId: 7, quantity: 25 },
+            { productId: 8, quantity: 10 },
+          ],
+        },
       ]),
     );
 
@@ -48,5 +86,14 @@ describe('AnalyticsComponent', () => {
     expect(text).toContain('Inventory value');
     expect(text).toContain('Low-stock items');
     expect(text).toContain('Order volume');
+  });
+
+  it('sums units across all purchase orders and charts their actual months', () => {
+    expect(fixture.componentInstance.getOrderVolume()).toBe(225);
+    expect(fixture.componentInstance.monthOrderTotals).toEqual([
+      { label: 'Jul 2026', value: 50 },
+      { label: 'Aug 2026', value: 140 },
+      { label: 'Sep 2026', value: 35 },
+    ]);
   });
 });

@@ -57,8 +57,11 @@ describe('ProductsComponent', () => {
     const component = fixture.componentInstance;
 
     component.remove(7);
+    fixture.detectChanges();
 
     expect(apiSpy.deleteProduct).toHaveBeenCalledWith(7);
+    expect(component.products).toEqual([]);
+    expect(fixture.nativeElement.textContent).toContain('Product deleted.');
   });
 
   it('should show no products when a search has no matches', () => {

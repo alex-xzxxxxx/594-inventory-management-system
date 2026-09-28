@@ -14,14 +14,14 @@ import { Product, Supplier } from "../../core/models/models";
         <p>Maintain the products stored in the warehouse.</p>
       </div>
     </div>
+    @if (error) {
+      <p class="error" role="alert">{{ error }}</p>
+    }
+    @if (success) {
+      <p class="success" role="status">{{ success }}</p>
+    }
     <div class="card form-card">
       <h2>Add Product</h2>
-      @if (error) {
-        <p class="error">{{ error }}</p>
-      }
-      @if (success) {
-        <p class="success">{{ success }}</p>
-      }
       <div class="form-grid">
         <input placeholder="SKU" [(ngModel)]="form.sku" /><input
           placeholder="Product name"
@@ -123,7 +123,7 @@ export class ProductsComponent {
       next: () => {
         this.success = "Product deleted.";
         this.error = "";
-        this.load();
+        this.products = this.products.filter((product) => product.id !== id);
       },
       error: () => {
         this.error = "Unable to delete product.";
